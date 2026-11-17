@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-bg text-fg font-sans text-sm antialiased;
+  color-scheme: dark;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-line rounded;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-violet-500;
+  }
+  .btn-ghost {
+    @apply btn text-muted hover:bg-hover hover:text-fg;
+  }
+  .input {
+    @apply w-full rounded-md border border-line bg-panel2 px-3 py-2 text-fg placeholder:text-dim outline-none focus:border-accent;
+  }
+  .card {
+    @apply rounded-lg border border-line bg-panel;
+  }
+  .label {
+    @apply text-[11px] uppercase tracking-wider text-dim font-mono;
+  }
+  .chip {
+    @apply rounded-full border border-line px-2.5 py-1 text-xs text-muted hover:bg-hover;
+  }
+  .chip-active {
+    @apply chip border-accent bg-accent-soft text-accent-fg;
+  }
+}
+
+/* Markdown в ответах */
+.md p {
+  @apply my-2 leading-relaxed;
+}
+.md ul {
+  @apply my-2 list-disc pl-5;
+}
+.md ol {
+  @apply my-2 list-decimal pl-5;
+}
+.md code {
+  @apply rounded bg-panel2 px-1 py-0.5 font-mono text-[0.85em];
+}
+.md pre {
+  @apply my-2 overflow-x-auto rounded-md bg-panel2 p-3;
+}
+.md pre code {
+  @apply bg-transparent p-0;
+}
+.md strong {
+  @apply text-white;
+}
+.md table {
+  @apply my-2 border-collapse;
+}
+.md td,
+.md th {
+  @apply border border-line px-2 py-1;
+}
+
+.cursor-blink::after {
+  content: "▍";
+  @apply ml-0.5 animate-pulse text-accent;
+}

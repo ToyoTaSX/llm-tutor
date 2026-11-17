@@ -1,0 +1,96 @@
+name: llm-tutor
+
+x-gpu: &gpu
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+
+services:
+  llm:
+    <<: *gpu
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    restart: unless-stopped
+    volumes:
+      - ${MODELS_DIR:-./models}:/models:ro
+    command:
+      - -m
+      - /models/${LLM_FILE:-Qwen2.5-3B-Instruct-Q4_K_M.gguf}
+      - -c
+      - "${LLM_CTX:-32768}"
+      - -np
+      - "${LLM_PARALLEL:-4}"
+      - -ngl
+      - "99"
+      - -fa
+      - "on"
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+    ports:
+      - "${LLM_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 10s
+
+  qdrant:
+    image: qdrant/qdrant:v1.20.0
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333 && printf \"GET /readyz HTTP/1.0\\r\\n\\r\\n\" >&3 && grep -q \"200 OK\" <&3'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  backend:
+    <<: *gpu
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+      MODELS_PATH: /models
+      SEED_FILE: /seed/course.txt
+      QDRANT_URL: http://qdrant:6333
+      LLM_URL: http://llm:8080
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+    volumes:
+      - app_data:/data
+      - ${MODELS_DIR:-./models}:/models:ro
+      - ./rag_lab/data:/seed:ro
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8000}:8000"   # только для отладки и vite dev
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 20s
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "${UI_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  qdrant_data:
+  app_data:

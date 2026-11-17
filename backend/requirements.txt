@@ -1,0 +1,29 @@
+# torch ставится отдельно из индекса CUDA 12.8 (см. Dockerfile)
+# версии ML-стека совпадают с проверенными в rag_lab
+FlagEmbedding==1.4.2
+transformers==5.20.2
+sentence-transformers==6.2.0
+peft==0.21.2
+accelerate==1.15.0
+datasets==5.1.0
+sentencepiece==0.2.2
+huggingface_hub==2.3.0
+numpy==2.4.6
+qdrant-client==1.20.0
+openai==3.37.0
+
+# веб и данные
+fastapi==0.118.0
+uvicorn[standard]==0.37.0
+sqlalchemy==2.0.43
+pydantic-settings==2.11.0
+python-multipart==0.0.20
+pwdlib[argon2]==0.2.1
+pyjwt==2.10.1
+httpx==0.28.1
+
+# MCP-клиент (веб-поиск через Tavily MCP, Streamable HTTP)
+mcp==2.3.0
+
+# тесты
+pytest==8.4.2

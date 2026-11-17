@@ -1,0 +1,32 @@
+# секреты и локальные настройки
+.env
+
+# модели (кладутся вручную, см. models/README.md)
+models/*
+!models/README.md
+
+# данные приложения при локальном запуске без Docker
+/data/
+*.db
+*.db-wal
+*.db-shm
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/dist/
+
+# лабораторные: локальные базы и результаты
+rag_lab/.venv/
+rag_lab/qdrant_*/
+rag_lab/results_*.csv
+rag_lab/models/
+rag_lab/llama/
+
+# сборка TypeScript
+*.tsbuildinfo
